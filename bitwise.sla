@@ -1,0 +1,124 @@
+#bitshl
+    set R A1
+    add R R
+ret
+
+#bitshr
+    clr X
+    clr Y
+    clr A2
+
+    inc A2
+    inc A2
+
+    bgq A1 #shrloop
+
+    neg A1
+    inc X
+
+    #shrloop
+        sub A1 A2
+        inc Y
+        blq A1 #done
+    jmp #shrloop
+
+    #done
+        blq X #shrpos
+        set R O
+        sub R Y
+        ret
+
+    #shrpos
+        beq A1 #shrz
+        dec Y
+
+    #shrz
+        set R Y
+ret
+
+#bitrol
+    jsr #bitshl
+    bgq A1 #rolnn
+    inc R
+    #rolnn
+ret
+
+#bitror
+    jsr #bitshr
+    beq A1 #rorz
+    add R O
+    #rorz
+    ret
+ret
+
+#bitand
+    slt F #bitandtst
+    jsr #bitfor
+    ret
+
+    #bitandtst
+            clr R
+            blq A1 #bitandtstneg1
+            ret
+        #bitandtstneg1
+            blq A2 #bitandtstneg2
+            ret
+        #bitandtstneg2
+            inc R
+ret
+
+#bitor
+    slt F #bitortst
+    jsr #bitfor
+    ret
+
+    #bitortst
+            clr R
+            blq A1 #bitortstneg
+            blq A2 #bitortstneg
+            ret
+        #bitortstneg
+            inc R
+ret
+
+#bitxor
+    slt F #bitxortst
+    jsr #bitfor
+    ret
+
+    #bitxortst
+            clr R
+            blq A1 #bitxortstneg1
+            blq A2 #bitxortstneg2
+            ret
+        #bitxortstneg1
+            blq A2 #bitxortst0
+            inc R
+            ret
+        #bitxortstneg2
+            blq A1 #bitxortst0
+            inc R
+        #bitxortst0
+ret
+
+#bitfor
+    slt X -16
+
+    clr Y
+
+    #bitforloop
+            add Y Y
+            cll F
+            blq R #bitforz
+            inc Y
+
+        #bitforz
+            add A1 A1
+            add A2 A2
+            dec X
+            blq X #bitforbrk
+            jmp #bitforloop
+
+    #bitforbrk
+    set R Y
+ret
